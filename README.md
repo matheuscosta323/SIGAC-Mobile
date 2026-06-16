@@ -44,7 +44,7 @@ O projeto encontra-se em fase de **prototipagem de alta fidelidade**, com navega
 sigac-app/
 ├── src/
 │   ├── api/
-│   │   └── api.js              # Requisições (mock)
+│   │   └── api.js              # Requisições
 │   ├── components/
 │   │   ├── AppButton.js        # Botão reutilizável
 │   │   └── AppInput.js         # Input reutilizável
