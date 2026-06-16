@@ -1,4 +1,4 @@
-# 📱 SIGAC — Sistema de Gestão de Atividades Complementares
+# SIGAC — Sistema de Gestão de Atividades Complementares
 
 > Aplicativo mobile desenvolvido para os alunos do curso de **Análise e Desenvolvimento de Sistemas (ADS)** do **Senac PE**, com o objetivo de descentralizar e agilizar o processo de validação de horas complementares.
 
@@ -20,15 +20,15 @@ O projeto encontra-se em fase de **prototipagem de alta fidelidade**, com navega
 
 | Tela | Status | Descrição |
 |---|---|---|
-| Login | ✅ Pronta | Interface finalizada; estrutura de autenticação pronta para integração |
-| Início (Home) | ✅ Pronta | Dashboard com resumo das horas e atividades recentes |
-| Enviar | ✅ Pronta | Formulário completo com campos de input e área de upload (UI) |
-| Histórico | ✅ Pronta | Listagem dinâmica com filtros por status e badges coloridos |
-| Perfil | ✅ Pronta | Detalhes do aluno, cursos vinculados e opções de conta |
+| Login |  Pronta | Interface finalizada; estrutura de autenticação pronta para integração |
+| Início (Home) |  Pronta | Dashboard com resumo das horas e atividades recentes |
+| Enviar |  Pronta | Formulário completo com campos de input e área de upload (UI) |
+| Histórico |  Pronta | Listagem dinâmica com filtros por status e badges coloridos |
+| Perfil |  Pronta | Detalhes do aluno, cursos vinculados e opções de conta |
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+##  Tecnologias Utilizadas
 
 - [React Native](https://reactnative.dev/) `0.81.5`
 - [Expo](https://expo.dev/) `~54.0.34`
@@ -38,7 +38,7 @@ O projeto encontra-se em fase de **prototipagem de alta fidelidade**, com navega
 
 ---
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 sigac-app/
@@ -67,7 +67,7 @@ sigac-app/
 
 ---
 
-## 🚀 Como Rodar o Projeto
+##  Como Rodar o Projeto
 
 ### Pré-requisitos
 
@@ -98,7 +98,7 @@ Abra o aplicativo **Expo Go** no seu celular e escaneie o **QR Code** que aparec
 
 ---
 
-## 📦 Dependências
+##  Dependências
 
 | Pacote | Versão |
 |---|---|
@@ -116,13 +116,13 @@ Abra o aplicativo **Expo Go** no seu celular e escaneie o **QR Code** que aparec
 
 ---
 
-## 👩‍💻 Autora
+##  Autora
 
 Desenvolvido por **Dayane Oliveira**  
 Curso de Análise e Desenvolvimento de Sistemas — Senac PE
 
 ---
 
-## 📄 Licença
+##  Licença
 
 Este projeto é de uso acadêmico.
