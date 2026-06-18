@@ -36,12 +36,6 @@ function HomeTabs() {
   );
 }
 
-/**
- * O navigator escolhe a stack com base no estado de autenticação.
- * Quando o usuário faz login, o token é setado no contexto e o React
- * re-renderiza automaticamente para a tela autenticada.
- * Quando faz logout, volta para a tela de Login sem deixar histórico.
- */
 export default function AppNavigator() {
   const { user } = useAuth();
 

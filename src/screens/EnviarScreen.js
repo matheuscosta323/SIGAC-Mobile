@@ -5,8 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
-import { useAuth } from '../context/AuthContext'; // Ajuste o caminho conforme necessário
+import { useAuth } from '../context/AuthContext';
 
 const API_BASE_URL = 'https://sigac-back-6jy9.onrender.com';
 
@@ -24,22 +23,20 @@ export default function EnviarScreen() {
   const [selectedRegra, setSelectedRegra] = useState(null);
   const [titulo, setTitulo] = useState('');
   const [cargaHoraria, setCargaHoraria] = useState('');
-  const [data, setData] = useState('');
-  const [descricao, setDescricao] = useState('');
   const [arquivo, setArquivo] = useState(null);
   
   // Dropdown states
   const [showCursoDropdown, setShowCursoDropdown] = useState(false);
   const [showRegraDropdown, setShowRegraDropdown] = useState(false);
 
-  // Buscar cursos quando tiver token
+  // Buscar cursos 
   useEffect(() => {
     if (token) {
       fetchCursos();
     }
   }, [token]);
 
-  // Buscar regras quando curso muda
+  // Buscar regras ao mudar o curso
   useEffect(() => {
     if (selectedCurso && token) {
       fetchRegras(selectedCurso.id);
@@ -57,7 +54,7 @@ export default function EnviarScreen() {
 
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/api/cursos/listar`, {
+         const response = await fetch(`${API_BASE_URL}/api/relatorios/meus-cursos`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -68,9 +65,16 @@ export default function EnviarScreen() {
         Alert.alert('Sessão expirada', 'Faça login novamente');
         return;
       }
-      
+
       const data = await response.json();
-      setCursos(data);
+
+      if (!response.ok) {
+        setCursos([]);
+        if (data.message) Alert.alert('Aviso', data.message);
+        return;
+      }
+
+      setCursos(data.cursos || []);
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível carregar os cursos');
       console.error(error);
@@ -100,7 +104,7 @@ export default function EnviarScreen() {
       }
       
       const data = await response.json();
-      setRegras(data);
+      setRegras(data.regras || []);
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível carregar as regras');
       console.error(error);
@@ -159,10 +163,6 @@ export default function EnviarScreen() {
       Alert.alert('Erro', 'Preencha a carga horária com um número válido');
       return;
     }
-    if (!data.trim()) {
-      Alert.alert('Erro', 'Preencha a data');
-      return;
-    }
     if (!arquivo) {
       Alert.alert('Erro', 'Selecione um arquivo para upload');
       return;
@@ -173,14 +173,13 @@ export default function EnviarScreen() {
 
       // Preparar FormData
       const formData = new FormData();
-      formData.append('carga_horaria_solicitada', parseInt(cargaHoraria));
-      formData.append('id_curso', selectedCurso.id);
-      formData.append('id_regra_atividade', selectedRegra.id);
+      formData.append('carga_horaria_solicitada', String(parseInt(cargaHoraria, 10)));
+      formData.append('id_curso', String(selectedCurso.id));
+      formData.append('id_regra_atividade', String(selectedRegra.id));
       formData.append('titulo', titulo.trim());
-      formData.append('nome_arquivo', arquivo.name);
-      
+
       // Anexar arquivo
-      formData.append('arquivo', {
+      formData.append('file', {
         uri: arquivo.uri,
         name: arquivo.name,
         type: arquivo.mimeType || 'application/octet-stream',
@@ -190,7 +189,6 @@ export default function EnviarScreen() {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
         },
         body: formData,
       });
@@ -209,8 +207,6 @@ export default function EnviarScreen() {
         setSelectedRegra(null);
         setTitulo('');
         setCargaHoraria('');
-        setData('');
-        setDescricao('');
         setArquivo(null);
         setRegras([]);
       } else {
@@ -224,7 +220,7 @@ export default function EnviarScreen() {
     }
   };
 
-  const renderDropdown = (items, selectedItem, onSelect, show, setShow, placeholder, disabled = false) => {
+  const renderDropdown = (items, selectedItem, onSelect, show, setShow, placeholder, disabled = false, getLabel = (item) => item.nome) => {
     return (
       <View style={styles.dropdownContainer}>
         <TouchableOpacity 
@@ -233,7 +229,7 @@ export default function EnviarScreen() {
           disabled={disabled}
         >
           <Text style={selectedItem ? styles.dropdownText : styles.dropdownPlaceholder}>
-            {selectedItem ? selectedItem.nome : placeholder}
+            {selectedItem ? getLabel(selectedItem) : placeholder}
           </Text>
           <Ionicons name={show ? 'chevron-up' : 'chevron-down'} size={20} color="#666" />
         </TouchableOpacity>
@@ -249,7 +245,7 @@ export default function EnviarScreen() {
                     setShow(false);
                   }}
                 >
-                  <Text style={styles.dropdownItemText}>{item.nome}</Text>
+                  <Text style={styles.dropdownItemText}>{getLabel(item)}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -302,7 +298,8 @@ export default function EnviarScreen() {
         showRegraDropdown,
         setShowRegraDropdown,
         selectedCurso ? 'Selecione a regra' : 'Selecione um curso primeiro',
-        !token || loading || !selectedCurso
+        !token || loading || !selectedCurso,
+        (item) => `${item.area} — ${item.descricao}`
       )}
 
       <Text style={styles.label}>Título da Atividade *</Text>
@@ -314,37 +311,13 @@ export default function EnviarScreen() {
         editable={!!token}
       />
 
-      <View style={styles.row}>
-        <View style={{flex: 1, marginRight: 10}}>
-          <Text style={styles.label}>Carga Horária *</Text>
-          <TextInput 
-            style={styles.input} 
-            placeholder="20" 
-            keyboardType="numeric" 
-            value={cargaHoraria}
-            onChangeText={setCargaHoraria}
-            editable={!!token}
-          />
-        </View>
-        <View style={{flex: 1}}>
-          <Text style={styles.label}>Data *</Text>
-          <TextInput 
-            style={styles.input} 
-            placeholder="dd/mm/aaaa" 
-            value={data}
-            onChangeText={setData}
-            editable={!!token}
-          />
-        </View>
-      </View>
-
-      <Text style={styles.label}>Descrição</Text>
+      <Text style={styles.label}>Carga Horária *</Text>
       <TextInput 
-        style={[styles.input, styles.textArea]} 
-        placeholder="Descreva brevemente a atividade realizada..." 
-        multiline 
-        value={descricao}
-        onChangeText={setDescricao}
+        style={styles.input} 
+        placeholder="20" 
+        keyboardType="numeric" 
+        value={cargaHoraria}
+        onChangeText={setCargaHoraria}
         editable={!!token}
       />
 
@@ -438,8 +411,6 @@ const styles = StyleSheet.create({
     padding: 12, 
     marginBottom: 15 
   },
-  row: { flexDirection: 'row' },
-  textArea: { height: 100, textAlignVertical: 'top' },
   
   uploadBox: { 
     borderWidth: 2, 

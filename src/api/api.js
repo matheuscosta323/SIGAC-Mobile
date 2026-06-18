@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Sem barra no final — os endpoints já começam com /api/...
 const BASE_URL = 'https://sigac-back-6jy9.onrender.com';
 
 export async function request(endpoint, options = {}) {

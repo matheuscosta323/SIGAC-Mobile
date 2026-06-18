@@ -29,7 +29,7 @@ export default function HomeScreen() {
   }, [cursoAtivo]);
 
   useEffect(() => {
-    if (!cursosCarregados) return; // aguarda carregamento inicial
+    if (!cursosCarregados) return;
     setLoading(true);
     setDashboard(null);
     fetchDashboard();
@@ -40,7 +40,6 @@ export default function HomeScreen() {
     fetchDashboard();
   }
 
-  // Ainda carregando os cursos
   if (loadingCursos || !cursosCarregados) {
     return (
       <View style={styles.centered}>
@@ -49,7 +48,6 @@ export default function HomeScreen() {
     );
   }
 
-  // Cursos carregados mas nenhum vinculado
   if (!cursoAtivo) {
     return (
       <View style={styles.centered}>
@@ -59,8 +57,6 @@ export default function HomeScreen() {
       </View>
     );
   }
-
-  // Carregando dashboard do curso
   if (loading) {
     return (
       <View style={styles.centered}>
