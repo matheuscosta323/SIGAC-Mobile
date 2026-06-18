@@ -2,19 +2,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { request } from '../api/api';
 
-
 function decodeJwtPayload(token) {
   try {
     const base64Url = token.split('.')[1];
     if (!base64Url) return null;
 
-    // Converte base64url → base64 padrão
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-
-    // Padding manual
     const padded = base64 + '=='.slice(0, (4 - (base64.length % 4)) % 4);
 
-    // Decodifica manualmente sem atob (não disponível no Hermes)
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
     let bytes = '';
     let buffer = 0;
@@ -53,14 +48,13 @@ export function AuthProvider({ children }) {
     try {
       const storedToken = await AsyncStorage.getItem('@token');
       const storedUser = await AsyncStorage.getItem('@user');
-
       if (storedToken && storedUser) {
         const payload = decodeJwtPayload(storedToken);
         if (payload && payload.role === 'aluno') {
           setToken(storedToken);
           setUser(JSON.parse(storedUser));
         } else {
-          await AsyncStorage.multiRemove(['@token', '@user']);
+          await AsyncStorage.multiRemove(['@token', '@user', '@curso_ativo']);
         }
       }
     } finally {
@@ -69,7 +63,8 @@ export function AuthProvider({ children }) {
   }
 
   async function signIn(email, password) {
-    const data = await request('api/auth/login', {
+    // Endpoint com /api/ — BASE_URL não tem barra final
+    const data = await request('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, senha: password }),
     });
@@ -79,7 +74,6 @@ export function AuthProvider({ children }) {
     if (!payload) {
       throw new Error('Token inválido recebido do servidor.');
     }
-
     if (payload.role !== 'aluno') {
       throw new Error('Acesso restrito a alunos. Use o portal web para outros perfis.');
     }
@@ -92,7 +86,6 @@ export function AuthProvider({ children }) {
 
     await AsyncStorage.setItem('@token', data.access_token);
     await AsyncStorage.setItem('@user', JSON.stringify(userData));
-
     setToken(data.access_token);
     setUser(userData);
   }

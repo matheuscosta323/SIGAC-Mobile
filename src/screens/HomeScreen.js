@@ -10,9 +10,9 @@ import { globalStyles } from '../styles/globalStyles';
 
 export default function HomeScreen() {
   const { user } = useAuth();
-  const { cursoAtivo, loadingCursos } = useCourse();
+  const { cursoAtivo, loadingCursos, cursosCarregados } = useCourse();
   const [dashboard, setDashboard] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchDashboard = useCallback(async () => {
@@ -28,19 +28,20 @@ export default function HomeScreen() {
     }
   }, [cursoAtivo]);
 
-  // Recarrega sempre que o curso ativo mudar
   useEffect(() => {
+    if (!cursosCarregados) return; // aguarda carregamento inicial
     setLoading(true);
     setDashboard(null);
     fetchDashboard();
-  }, [fetchDashboard]);
+  }, [fetchDashboard, cursosCarregados]);
 
   function onRefresh() {
     setRefreshing(true);
     fetchDashboard();
   }
 
-  if (loadingCursos || loading) {
+  // Ainda carregando os cursos
+  if (loadingCursos || !cursosCarregados) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#002D56" />
@@ -48,10 +49,22 @@ export default function HomeScreen() {
     );
   }
 
+  // Cursos carregados mas nenhum vinculado
   if (!cursoAtivo) {
     return (
       <View style={styles.centered}>
-        <Text style={{ color: '#666' }}>Nenhum curso vinculado.</Text>
+        <Text style={{ color: '#666', textAlign: 'center', paddingHorizontal: 30 }}>
+          Nenhum curso vinculado.{'\n'}Fale com a coordenação.
+        </Text>
+      </View>
+    );
+  }
+
+  // Carregando dashboard do curso
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#002D56" />
       </View>
     );
   }
@@ -70,13 +83,11 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#002D56']} />}
     >
-      {/* Cabeçalho */}
       <View style={styles.header}>
         <Text style={styles.welcomeText}>Olá, {user?.nome?.split(' ')[0] ?? 'Aluno'}!</Text>
         <Text style={styles.infoText}>{cursoAtivo.nome}</Text>
       </View>
 
-      {/* Card de Progresso */}
       <View style={[globalStyles.card, styles.progressCard]}>
         <Text style={styles.cardHeader}>Progresso Total</Text>
         <View style={styles.progressRow}>
@@ -94,7 +105,6 @@ export default function HomeScreen() {
         }
       </View>
 
-      {/* Horas por Área */}
       {areas.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>Horas por Área</Text>
@@ -109,12 +119,11 @@ export default function HomeScreen() {
         </>
       )}
 
-      {/* Status das Solicitações */}
       <Text style={styles.sectionTitle}>Solicitações</Text>
       <View style={styles.statusContainer}>
-        <StatusCard count={solicitacoes.pendentes ?? 0}  title="Pendentes"  color="#FF9800" bgColor="#FFF3E0" />
-        <StatusCard count={solicitacoes.aprovadas ?? 0}  title="Aprovadas"  color="#4CAF50" bgColor="#E8F5E9" />
-        <StatusCard count={solicitacoes.recusadas ?? 0}  title="Recusadas"  color="#F44336" bgColor="#FFEBEE" />
+        <StatusCard count={solicitacoes.pendentes ?? 0} title="Pendentes"  color="#FF9800" bgColor="#FFF3E0" />
+        <StatusCard count={solicitacoes.aprovadas ?? 0} title="Aprovadas"  color="#4CAF50" bgColor="#E8F5E9" />
+        <StatusCard count={solicitacoes.recusadas ?? 0} title="Recusadas"  color="#F44336" bgColor="#FFEBEE" />
       </View>
 
       <View style={{ height: 40 }} />
@@ -122,14 +131,7 @@ export default function HomeScreen() {
   );
 }
 
-// ─── Componentes auxiliares ───────────────────────────────────────────────────
-
-const AREA_COLORS = {
-  Ensino:    '#2196F3',
-  Pesquisa:  '#00C853',
-  Extensão:  '#6200EA',
-  default:   '#FF9800',
-};
+const AREA_COLORS = { Ensino: '#2196F3', Pesquisa: '#00C853', Extensão: '#6200EA', default: '#FF9800' };
 
 function ProgressBar({ label, current, total }) {
   const color = AREA_COLORS[label] ?? AREA_COLORS.default;
@@ -157,25 +159,25 @@ function StatusCard({ count, title, color, bgColor }) {
 }
 
 const styles = StyleSheet.create({
-  container:      { flex: 1, backgroundColor: '#fff', padding: 20 },
-  centered:       { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header:         { marginBottom: 20, marginTop: 20 },
-  welcomeText:    { fontSize: 22, fontWeight: 'bold', color: '#002D56' },
-  infoText:       { color: '#666', fontSize: 14 },
-  progressCard:   { backgroundColor: '#002D56', padding: 20 },
-  cardHeader:     { color: '#fff', fontSize: 14 },
-  progressRow:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 },
-  hoursText:      { color: '#fff', fontSize: 32, fontWeight: 'bold' },
-  subHoursText:   { color: '#fff', opacity: 0.8 },
+  container:         { flex: 1, backgroundColor: '#fff', padding: 20 },
+  centered:          { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  header:            { marginBottom: 20, marginTop: 20 },
+  welcomeText:       { fontSize: 22, fontWeight: 'bold', color: '#002D56' },
+  infoText:          { color: '#666', fontSize: 14 },
+  progressCard:      { backgroundColor: '#002D56', padding: 20 },
+  cardHeader:        { color: '#fff', fontSize: 14 },
+  progressRow:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 },
+  hoursText:         { color: '#fff', fontSize: 32, fontWeight: 'bold' },
+  subHoursText:      { color: '#fff', opacity: 0.8 },
   circlePlaceholder: { width: 60, height: 60, borderRadius: 30, borderWidth: 3, borderColor: '#FFD700', justifyContent: 'center', alignItems: 'center' },
-  statusText:     { color: '#FFD700', marginTop: 10, fontSize: 12 },
-  sectionTitle:   { fontSize: 18, fontWeight: 'bold', color: '#002D56', marginBottom: 15, marginTop: 10 },
+  statusText:        { color: '#FFD700', marginTop: 10, fontSize: 12 },
+  sectionTitle:      { fontSize: 18, fontWeight: 'bold', color: '#002D56', marginBottom: 15, marginTop: 10 },
   progressContainer: { marginBottom: 15 },
-  progressLabels: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
-  barBackground:  { height: 8, backgroundColor: '#eee', borderRadius: 4 },
-  barFill:        { height: 8, borderRadius: 4 },
-  statusContainer: { flexDirection: 'row', justifyContent: 'space-between' },
-  statusCard:     { width: '30%', alignItems: 'center', padding: 10, borderRadius: 12 },
-  countText:      { fontSize: 20, fontWeight: 'bold' },
-  titleText:      { fontSize: 10, fontWeight: 'bold', marginTop: 5 },
+  progressLabels:    { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
+  barBackground:     { height: 8, backgroundColor: '#eee', borderRadius: 4 },
+  barFill:           { height: 8, borderRadius: 4 },
+  statusContainer:   { flexDirection: 'row', justifyContent: 'space-between' },
+  statusCard:        { width: '30%', alignItems: 'center', padding: 10, borderRadius: 12 },
+  countText:         { fontSize: 20, fontWeight: 'bold' },
+  titleText:         { fontSize: 10, fontWeight: 'bold', marginTop: 5 },
 });

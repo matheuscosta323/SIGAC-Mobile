@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'https://sigac-back-6jy9.onrender.com/';
+// Sem barra no final — os endpoints já começam com /api/...
+const BASE_URL = 'https://sigac-back-6jy9.onrender.com';
 
 export async function request(endpoint, options = {}) {
   const token = await AsyncStorage.getItem('@token');
@@ -19,7 +20,6 @@ export async function request(endpoint, options = {}) {
   const data = await response.json();
 
   if (!response.ok) {
-    // Lança o erro com a mensagem que veio do backend
     const error = new Error(data.message || 'Erro na requisição.');
     error.status = response.status;
     error.data = data;

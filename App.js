@@ -1,12 +1,24 @@
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
-import { CourseProvider } from './src/context/CourseContext';
+import { CourseProvider, useCourse } from './src/context/CourseContext';
 import AppNavigator from './src/navigation/AppNavigator';
 import { ActivityIndicator, View } from 'react-native';
+import { useEffect } from 'react';
 
 function AuthWrapper() {
-  const { loading } = useAuth();
+  const { user, loading } = useAuth();
+  const { carregarCursos, limparCurso } = useCourse();
+
+  // Carrega cursos quando o usuário loga; limpa quando desloga
+  useEffect(() => {
+    if (user) {
+      carregarCursos();
+    } else {
+      limparCurso();
+    }
+  }, [user]);
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -14,6 +26,7 @@ function AuthWrapper() {
       </View>
     );
   }
+
   return <AppNavigator />;
 }
 
