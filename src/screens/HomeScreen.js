@@ -15,7 +15,7 @@ export default function HomeScreen() {
 
   const fetchDashboard = useCallback(async () => {
     try {
-      const data = await request('/relatorios/dashboard-aluno');
+      const data = await request('api/relatorios/dashboard-aluno');
       setDashboard(data);
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível carregar o dashboard.');

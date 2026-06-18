@@ -1,9 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Troque pelo IP/URL do seu servidor backend
-// Em desenvolvimento local com Expo, use o IP da sua máquina (ex: http://192.168.1.10:5000)
-// Em produção, use a URL do servidor (ex: https://sigac-api.exemplo.com)
-const BASE_URL = 'http://SEU_IP_AQUI:5000/api';
+const BASE_URL = 'https://sigac-back-6jy9.onrender.com/';
 
 export async function request(endpoint, options = {}) {
   const token = await AsyncStorage.getItem('@token');

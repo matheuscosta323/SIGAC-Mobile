@@ -2,11 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { request } from '../api/api';
 
-/**
- * Decodifica o payload de um JWT sem verificar a assinatura.
- * NÃO usa atob() — que não existe no Hermes/React Native —
- * e sim uma implementação base64 pura em JS.
- */
+
 function decodeJwtPayload(token) {
   try {
     const base64Url = token.split('.')[1];
@@ -73,7 +69,7 @@ export function AuthProvider({ children }) {
   }
 
   async function signIn(email, password) {
-    const data = await request('/auth/login', {
+    const data = await request('api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, senha: password }),
     });
