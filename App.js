@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { CourseProvider } from './src/context/CourseContext';
 import AppNavigator from './src/navigation/AppNavigator';
 import { ActivityIndicator, View } from 'react-native';
 
@@ -19,10 +20,12 @@ function AuthWrapper() {
 export default function App() {
   return (
     <AuthProvider>
-      <NavigationContainer>
-        <StatusBar style="auto" />
-        <AuthWrapper />
-      </NavigationContainer>
+      <CourseProvider>
+        <NavigationContainer>
+          <StatusBar style="auto" />
+          <AuthWrapper />
+        </NavigationContainer>
+      </CourseProvider>
     </AuthProvider>
   );
 }

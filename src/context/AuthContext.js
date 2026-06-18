@@ -98,7 +98,7 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
-    await AsyncStorage.multiRemove(['@token', '@user']);
+    await AsyncStorage.multiRemove(['@token', '@user', '@curso_ativo']);
     setToken(null);
     setUser(null);
   }
