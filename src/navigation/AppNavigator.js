@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthContext';
 import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
 import EnviarScreen from '../screens/EnviarScreen';
@@ -10,7 +11,6 @@ import PerfilScreen from '../screens/PerfilScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Navegação em abas (Menu Inferior)
 function HomeTabs() {
   return (
     <Tab.Navigator
@@ -36,12 +36,24 @@ function HomeTabs() {
   );
 }
 
-// Navegador principal (Gerencia Login -> Home)
+/**
+ * O navigator escolhe a stack com base no estado de autenticação.
+ * Quando o usuário faz login, o token é setado no contexto e o React
+ * re-renderiza automaticamente para a tela autenticada.
+ * Quando faz logout, volta para a tela de Login sem deixar histórico.
+ */
 export default function AppNavigator() {
+  const { user } = useAuth();
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="HomeTabs" component={HomeTabs} />
+      {user ? (
+        // Usuário autenticado: exibe as telas do app
+        <Stack.Screen name="HomeTabs" component={HomeTabs} />
+      ) : (
+        // Usuário não autenticado: exibe a tela de login
+        <Stack.Screen name="Login" component={LoginScreen} />
+      )}
     </Stack.Navigator>
   );
 }
